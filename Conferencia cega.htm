@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atividade Prática: Conferência Cega (Recebimento)</title>
+<style>
+:root{--bg:#f4f7fb;--card:#ffffff;--accent:#0b76ef;--ok:#198754;--warn:#dc3545}
+body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);margin:0;padding:20px}
+.container{max-width:1100px;margin:0 auto}
+header{display:flex;gap:16px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:1.4rem}
+.meta{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(13,38,59,0.06);display:flex;gap:12px;align-items:center}
+label{font-size:0.9rem}
+input[type=text],select{padding:8px;border-radius:6px;border:1px solid #d9e3ef}
+.controls{display:flex;gap:8px;align-items:center}
+.card{background:var(--card);margin-top:14px;padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(13,38,59,0.04)}
+.carga{border:1px dashed #e6eefc;padding:10px;margin-bottom:10px;border-radius:8px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border-bottom:1px solid #f0f3f7;text-align:left}
+.btn{padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+.btn-primary{background:var(--accent);color:white}
+.btn-outline{background:#fff;border:1px solid #cfe3ff}
+.feedback{font-weight:600}
+.ok{color:var(--ok)}
+.err{color:var(--warn)}
+.small{font-size:0.85rem;color:#556}
+.info{background:#f1f8ff;padding:10px;border-radius:8px;margin-top:8px}
+footer{margin-top:18px;font-size:0.85rem;color:#445}
+@media (max-width:800px){header{flex-direction:column;align-items:flex-start} .meta{flex-direction:column;gap:8px}}
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Atividade Prática: Conferência Cega (Recebimento)</h1>
+        <div class="small">Professor: Luiz Eduardo Peixoto</div>
+      </div>
+      <div class="controls">
+        <div class="meta">
+          <div style="display:flex;gap:8px;align-items:center">
+            <label>Aluno</label>
+            <input id="aluno" type="text" placeholder="Seu nome" />
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label>Ranking local</label>
+            <input id="rank" type="text" placeholder="Ex: 1º" style="width:80px" />
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label>Medalha</label>
+            <input id="medalha" type="text" placeholder="Ouro/Prata/Bronze" style="width:140px" />
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label>Pontos</label>
+            <input id="score" type="text" readonly value="0" style="width:80px;background:#f6f8fb" />
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <strong>Cronômetro</strong>
+          <div id="timer" style="font-size:1.2rem">10:00</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" id="startBtn">Iniciar</button>
+          <button class="btn btn-outline" id="pauseBtn">Pausar</button>
+          <button class="btn" id="resetBtn">Reset</button>
+        </div>
+      </div>
+
+      <div class="info">
+        <strong>O que é Conferência Cega?</strong>
+        <p class="small">A conferência cega é o processo em que o conferente verifica a carga registrada no sistema sem visualizar a nota/ficha completa — focando apenas na contagem física e registro de unidades recebidas. Ajuda a aumentar a acuracidade do estoque e a identificar divergências. Dica: trabalhe com sequência, valide unidade por unidade e, se houver divergência, faça recontagem.</p>
+      </div>
+
+      <div style="margin-top:12px">
+        <p class="small">Instruções: São 5 cargas (etapas). Cada carga apresenta 8 produtos. Para cada produto insira a quantidade recebida. Ao finalizar a carga clique em "Conferir carga". O sistema informará se está conforme. Se divergente, clique em "Recontar" para tentar novamente. Pontuação automática por produto correto.</p>
+      </div>
+    </div>
+
+    <div id="etapas" class="card">
+      <!-- etapas serão renderizadas por JS -->
+    </div>
+
+    <footer>
+      <div class="small">Referências: materiais e PPTs do módulo (enviados pelo professor) e boas práticas de recebimento e conferência de estoque.</div>
+    </footer>
+  </div>
+
+  <script>
+    const cargas = [
+      {id:1,nome:'Carga 1 - Pallet A',itens:[{sku:'1001',nome:'Parafuso 4x20 (caixa)',qty:50},{sku:'1002',nome:'Porca M6 (pacote)',qty:30},{sku:'1003',nome:'Arruela 6mm (pacote)',qty:30},{sku:'1004',nome:'Lâmpada LED 9W',qty:20},{sku:'1005',nome:'Cabo USB 1m',qty:40},{sku:'1006',nome:'Fita isolante 10m',qty:25},{sku:'1007',nome:'Conector RJ45',qty:15},{sku:'1008',nome:'Adaptador tomada',qty:10}]},
+      {id:2,nome:'Carga 2 - Pallet B',itens:[{sku:'2001',nome:'Extensão 3m',qty:22},{sku:'2002',nome:'Bateria AA (pack 4)',qty:35},{sku:'2003',nome:'Ventilador USB',qty:12},{sku:'2004',nome:'Suporte para TV',qty:8},{sku:'2005',nome:'Bolsa para ferramentas',qty:14},{sku:'2006',nome:'Furadeira pequena',qty:6},{sku:'2007',nome:'Par de luvas',qty:44},{sku:'2008',nome:'Óculos de proteção',qty:18}]},
+      {id:3,nome:'Carga 3 - Pallet C',itens:[{sku:'3001',nome:'Filtro de ar',qty:9},{sku:'3002',nome:'Mangueira 5m',qty:16},{sku:'3003',nome:'Válvula esfera',qty:11},{sku:'3004',nome:'Rolamento 6202',qty:27},{sku:'3005',nome:'Cilindro pequeno',qty:5},{sku:'3006',nome:'Conjunto parafusos M8',qty:33},{sku:'3007',nome:'Tubo PVC 1m',qty:21},{sku:'3008',nome:'Clipe metálico',qty:60}]},
+      {id:4,nome:'Carga 4 - Pallet D',itens:[{sku:'4001',nome:'Cabo HDMI 2m',qty:28},{sku:'4002',nome:'Suporte para monitor',qty:7},{sku:'4003',nome:'Mouse óptico',qty:36},{sku:'4004',nome:'Teclado membrana',qty:20},{sku:'4005',nome:'Webcam 720p',qty:13},{sku:'4006',nome:'Microfone de mesa',qty:6},{sku:'4007',nome:'Base refrigerada',qty:9},{sku:'4008',nome:'Filtro de linha',qty:15}]},
+      {id:5,nome:'Carga 5 - Pallet E',itens:[{sku:'5001',nome:'Caixa organizadora',qty:24},{sku:'5002',nome:'Etiquetas 3x5',qty:100},{sku:'5003',nome:'Fita de empacotamento',qty:50},{sku:'5004',nome:'Bobina de plástico',qty:7},{sku:'5005',nome:'Etiqueta RFID (pacote)',qty:12},{sku:'5006',nome:'Marcador permanente',qty:45},{sku:'5007',nome:'Caneta para quadro',qty:19},{sku:'5008',nome:'Pano de limpeza',qty:33}]}
+    ];
+
+    let pontos = 0; const pontosPorItem = 5;
+    let totalSegundos = 10 * 60; let timerInterval = null;
+    const timerEl = document.getElementById('timer');
+    function formatTime(sec){const m=Math.floor(sec/60).toString().padStart(2,'0');const s=(sec%60).toString().padStart(2,'0');return `${m}:${s}`;}
+    timerEl.textContent=formatTime(totalSegundos);
+
+    document.getElementById('startBtn').onclick=()=>{if(timerInterval)return;timerInterval=setInterval(()=>{if(totalSegundos<=0){clearInterval(timerInterval);timerInterval=null;alert('Tempo esgotado!');return}totalSegundos--;timerEl.textContent=formatTime(totalSegundos);},1000)};
+    document.getElementById('pauseBtn').onclick=()=>{if(timerInterval){clearInterval(timerInterval);timerInterval=null}};
+    document.getElementById('resetBtn').onclick=()=>{if(timerInterval){clearInterval(timerInterval);timerInterval=null}totalSegundos=10*60;timerEl.textContent=formatTime(totalSegundos);pontos=0;document.getElementById('score').value=pontos;document.querySelectorAll('.user-qty').forEach(i=>i.value='');document.querySelectorAll('.feedback').forEach(f=>{f.textContent='';f.className='feedback'});};
+
+    const etapasEl=document.getElementById('etapas');
+    function render(){
+      etapasEl.innerHTML='';
+      cargas.forEach((carga,idx)=>{
+        const div=document.createElement('div');div.className='carga';div.innerHTML=`<h3>${carga.nome}</h3>`;
+        const table=document.createElement('table');
+        const thead=document.createElement('thead');
+        thead.innerHTML='<tr><th>Produto</th><th>Quantidade Recebida</th><th>Feedback</th></tr>';
+        table.appendChild(thead);
+        const tbody=document.createElement('tbody');
+        carga.itens.forEach((item,i)=>{
+          const tr=document.createElement('tr');
+          tr.innerHTML=`<td>${item.nome}</td><td><input class="user-qty" data-carga="${idx}" data-item="${i}" type="number" min="0" style="width:90px" /></td><td><span class="feedback" id="fb-${idx}-${i}"></span></td>`;
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        div.appendChild(table);
+        const actions=document.createElement('div');actions.style.marginTop='8px';
+        actions.innerHTML=`<button class="btn btn-primary" data-action="confere" data-idx="${idx}">Conferir carga</button> <button class="btn btn-outline" data-action="recontar" data-idx="${idx}">Recontar</button> <span class="small" id="res-${idx}" style="margin-left:12px"></span>`;
+        div.appendChild(actions);
+        etapasEl.appendChild(div);
+      });
+      document.querySelectorAll('[data-action="confere"]').forEach(b=>b.addEventListener('click',confererCarga));
+      document.querySelectorAll('[data-action="recontar"]').forEach(b=>b.addEventListener('click',recontarCarga));
+    }
+
+    function confererCarga(e){
+      const idx=Number(e.currentTarget.dataset.idx);const carga=cargas[idx];const inputs=document.querySelectorAll(`.user-qty[data-carga='${idx}']`);let correta=true;let acertosNoIndice=0;
+      inputs.forEach(inp=>{const itemIdx=Number(inp.dataset.item);const valor=Number(inp.value);const esperado=carga.itens[itemIdx].qty;const fb=document.getElementById(`fb-${idx}-${itemIdx}`);
+        if(Number.isFinite(valor)&&valor===esperado){fb.textContent='Conforme';fb.className='feedback ok';acertosNoIndice++;}else{fb.textContent='Divergente';fb.className='feedback err';correta=false;}});
+      let totalAcertos=0;document.querySelectorAll('.user-qty').forEach(inp=>{const c=Number(inp.dataset.carga);const it=Number(inp.dataset.item);const val=Number(inp.value);if(!Number.isFinite(val))return;if(val===cargas[c].itens[it].qty)totalAcertos++;});
+      pontos=totalAcertos*pontosPorItem;document.getElementById('score').value=pontos;const resEl=document.getElementById(`res-${idx}`);
+      if(correta){resEl.innerHTML=`<span class="ok">Carga ${idx+1} conforme. +${acertosNoIndice*pontosPorItem} pontos</span>`;}else{resEl.innerHTML=`<span class="err">Carga ${idx+1} divergente. Verifique itens marcados e refaça a contagem.</span>`;}
+    }
+
+    function recontarCarga(e){const idx=Number(e.currentTarget.dataset.idx);document.querySelectorAll(`.user-qty[data-carga='${idx}']`).forEach(i=>i.value='');document.querySelectorAll(`#etapas .feedback`).forEach(f=>f.textContent='');document.getElementById(`res-${idx}`).textContent='';}
+
+    render();
+  </script>
+</body>
+</html>
